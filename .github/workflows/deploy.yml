@@ -33,7 +33,7 @@ jobs:
         run: npm9 install
 
       - name: Build
-        run: npm run build
+        run: npm9 run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
