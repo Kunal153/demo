@@ -10,7 +10,10 @@ import {
   Download,
   Layers,
   ChevronRight,
-  BookOpen
+  BookOpen,
+  Globe,
+  AlertTriangle,
+  CheckCircle2
 } from 'lucide-react';
 
 interface GitHubExportModalProps {
@@ -20,7 +23,7 @@ interface GitHubExportModalProps {
 
 export const GitHubExportModal: React.FC<GitHubExportModalProps> = ({ isOpen, onClose }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'parts' | 'commands' | 'structure'>('parts');
+  const [activeTab, setActiveTab] = useState<'pages' | 'parts' | 'commands' | 'structure'>('pages');
 
   if (!isOpen) return null;
 
@@ -132,6 +135,20 @@ git push -u origin main`;
         {/* Navigation Tabs */}
         <div className="px-6 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center gap-3 text-xs shrink-0">
           <button
+            onClick={() => setActiveTab('pages')}
+            className={`px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'pages'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                : 'text-amber-400 hover:text-amber-300'
+            }`}
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>Fix Blank Screen (Pages)</span>
+            <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500/30 text-amber-200 font-bold uppercase">
+              Fix
+            </span>
+          </button>
+          <button
             onClick={() => setActiveTab('parts')}
             className={`px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer ${
               activeTab === 'parts'
@@ -166,6 +183,75 @@ git push -u origin main`;
 
         {/* Body Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {activeTab === 'pages' && (
+            <div className="space-y-6">
+              {/* Alert / Reason Explanation */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
+                <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>Why GitHub Pages shows a blank screen for Vite + React:</span>
+                </div>
+                <div className="text-xs text-slate-300 space-y-1.5 pl-6">
+                  <p>
+                    <strong className="text-amber-200">1. Subpath Asset Resolution:</strong> GitHub Pages serves your site from <code className="bg-slate-900 px-1.5 py-0.5 rounded text-amber-300">https://username.github.io/repo-name/</code>. By default Vite uses <code className="bg-slate-900 px-1 py-0.5 rounded text-slate-300">/assets/</code> which drops the repo name (404 Not Found). We have fixed this by setting <code className="bg-slate-900 px-1.5 py-0.5 rounded text-emerald-400 font-bold">base: './'</code> in <code className="text-sky-300">vite.config.ts</code>.
+                  </p>
+                  <p>
+                    <strong className="text-amber-200">2. Deploying Raw Source instead of Built Dist:</strong> If you select branch &quot;main / (root)&quot; in GitHub Pages settings, it serves raw <code className="text-sky-300">src/main.tsx</code> which web browsers cannot execute. You must build to <code className="text-emerald-400">dist/</code> and deploy the built artifacts.
+                  </p>
+                </div>
+              </div>
+
+              {/* Recommended Solution: GitHub Actions (Automated) */}
+              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>Solution A: Automatic Deploy via GitHub Actions (Recommended)</span>
+                  </h4>
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Already Configured
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  We already added the workflow file <code className="text-sky-300 bg-slate-900 px-1.5 py-0.5 rounded font-mono">.github/workflows/deploy.yml</code> to your repository!
+                  All you need to do on GitHub is switch the deployment source to Actions:
+                </p>
+
+                <ol className="text-xs text-slate-300 space-y-2 list-decimal list-inside pl-1 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                  <li>Open your repository on <strong>GitHub.com</strong>.</li>
+                  <li>Click on the <strong>Settings</strong> tab (gear icon at the top).</li>
+                  <li>In the left sidebar, click on <strong>Pages</strong>.</li>
+                  <li>Under <strong>Build and deployment &gt; Source</strong>, click the dropdown and choose <strong className="text-sky-400">GitHub Actions</strong> (instead of &quot;Deploy from a branch&quot;).</li>
+                  <li>Push your latest commit to GitHub. Your site will automatically build and deploy within 60 seconds!</li>
+                </ol>
+              </div>
+
+              {/* Manual Solution: gh-pages branch */}
+              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Terminal className="w-4 h-4 text-sky-400" />
+                  <span>Solution B: Manual Build &amp; Deploy (gh-pages branch)</span>
+                </h4>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  If you prefer deploying via terminal without GitHub Actions:
+                </p>
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-3">
+                  <pre className="text-xs font-mono text-emerald-400 overflow-x-auto whitespace-pre">
+{`# 1. Build the production package with relative asset paths
+npm run build
+
+# 2. Push the dist folder directly to the gh-pages branch
+npx gh-pages -d dist`}
+                  </pre>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Then in GitHub <strong>Settings &gt; Pages</strong>, select source: <strong>Deploy from a branch</strong> &gt; Branch: <code className="text-sky-300 font-mono">gh-pages</code> &gt; <code className="text-sky-300 font-mono">/ (root)</code>.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'parts' && (
             <div className="space-y-6">
               <div className="p-4 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300">

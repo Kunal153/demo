@@ -135,5 +135,24 @@ git push -u origin main
 
 ---
 
+## 🌐 Deploying to GitHub Pages (Fixing the Blank Screen)
+
+If your website showed a blank screen on GitHub Pages, it was caused by either:
+1. **Absolute path asset resolution (`/assets/...`)** dropping the repo subpath name `https://username.github.io/repo-name/`.
+2. **Deploying the raw source files (`src/main.tsx`)** instead of the compiled production output (`dist/`).
+
+### How to Deploy in 30 Seconds with GitHub Actions (Zero Blank Screen)
+1. In your GitHub repository, go to **Settings** > **Pages**.
+2. Under **Build and deployment** > **Source**, change from *"Deploy from a branch"* to **GitHub Actions**.
+3. Push your repository:
+   ```bash
+   git add .
+   git commit -m "fix: configure GitHub Pages relative base and actions workflow"
+   git push origin main
+   ```
+4. GitHub Actions will automatically run `.github/workflows/deploy.yml`, build the project, and publish it live!
+
+---
+
 ## 🛡️ License
 Distributed under the Apache-2.0 License.
